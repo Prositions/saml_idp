@@ -11,6 +11,7 @@ module SamlIdp
 
     included do
       helper_method :saml_acs_url if respond_to? :helper_method
+      helper_method :saml_logout_url if respond_to? :helper_method
     end
 
     attr_accessor :algorithm
