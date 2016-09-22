@@ -19,9 +19,14 @@ module SamlIdp
 
     protected
 
+
     def validate_saml_request(raw_saml_request = params[:SAMLRequest])
       decode_request(raw_saml_request)
       render nothing: true, status: :forbidden unless valid_saml_request?
+    end
+
+    def set_saml_request(request)
+      self.saml_request = Request.new(request)
     end
 
     def decode_request(raw_saml_request)
@@ -67,6 +72,7 @@ module SamlIdp
     end
 
     def encode_response(principal, opts = {})
+
       if saml_request.authn_request?
         encode_authn_response(principal, opts)
       elsif saml_request.logout_request?
