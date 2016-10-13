@@ -45,6 +45,7 @@ section of the README.
   s.add_dependency('uuid')
   s.add_dependency('builder')
   s.add_dependency('httparty')
+  s.add_dependency('xmlenc', '>= 0.6.4')
   s.add_dependency('nokogiri', '>= 1.6.2')
 
   s.add_development_dependency "rake"
@@ -54,6 +55,4 @@ section of the README.
   s.add_development_dependency("rails", "~> 3.2")
   s.add_development_dependency("capybara")
   s.add_development_dependency("timecop")
-  s.add_development_dependency("xmlenc", ">= 0.6.4")
 end
-
