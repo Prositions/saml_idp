@@ -12,20 +12,33 @@ module SamlIdp
       self.cert = opts[:cert]
     end
 
-    def encrypt(raw_xml) 
+    def encrypt(raw_xml)
+      Rails.logger.info("raw_xml:#{raw_xml.inspect}")
+      Rails.logger.info("\n\n")
       encryption_template = Nokogiri::XML::Document.parse(build_encryption_template).root
+      Rails.logger.info("encryption_template:#{encryption_template}")
+      Rails.logger.info("\n\n")
+
       encrypted_data = Xmlenc::EncryptedData.new(encryption_template)
+      Rails.logger.info("encrypted_data:#{encrypted_data.inspect}")
+      Rails.logger.info("\n\n")
       @encryption_key = encrypted_data.encrypt(raw_xml)
       encrypted_key_node = encrypted_data.node.at_xpath(
         '//xenc:EncryptedData/ds:KeyInfo/xenc:EncryptedKey',
         Xmlenc::NAMESPACES
-      )   
+      )
       encrypted_key = Xmlenc::EncryptedKey.new(encrypted_key_node)
+      Rails.logger.info("Starting Encryption")
+      Rails.logger.info("Cert:#{cert.inspect}")
+      Rails.logger.info("Base64:#{Base64.decode64(cert)}")
+      Rails.logger.info("Public Key:#{openssl_cert.public_key}")
+      Rails.logger.info("Encryption Key:#{encryption_key}")
+      Rails.logger.info("\n\n")
       encrypted_key.encrypt(openssl_cert.public_key, encryption_key)
       xml = Builder::XmlMarkup.new
       xml.EncryptedAssertion xmlns: Saml::XML::Namespaces::ASSERTION do |enc_assert|
         enc_assert << encrypted_data.node.to_s
-      end 
+      end
     end
 
     def openssl_cert
@@ -33,23 +46,23 @@ module SamlIdp
         @_openssl_cert ||= OpenSSL::X509::Certificate.new(Base64.decode64(cert))
       else
         @_openssl_cert ||= cert
-      end 
-    end 
+      end
+    end
     private :openssl_cert
 
     def block_encryption_ns
       "http://www.w3.org/2001/04/xmlenc##{block_encryption}"
-    end 
+    end
     private :block_encryption_ns
 
     def key_transport_ns
       "http://www.w3.org/2001/04/xmlenc##{key_transport}"
-    end 
+    end
     private :key_transport_ns
 
     def cipher_algorithm
       Xmlenc::EncryptedData::ALGORITHMS[block_encryption_ns]
-    end 
+    end
     private :cipher_algorithm
 
     def build_encryption_template
@@ -64,7 +77,7 @@ module SamlIdp
               key_info2.tag! 'ds:KeyName'
               key_info2.tag! 'ds:X509Data' do |x509_data|
                 x509_data.tag! 'ds:X509Certificate' do |x509_cert|
-                  x509_cert << cert.to_s.gsub(/-+(BEGIN|END) CERTIFICATE-+/, '') 
+                  x509_cert << Base64.decode64(cert).to_s.gsub(/-+(BEGIN|END) CERTIFICATE-+/, '')
                 end
               end
             end
