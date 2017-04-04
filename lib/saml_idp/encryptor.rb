@@ -13,27 +13,27 @@ module SamlIdp
     end
 
     def encrypt(raw_xml)
-      Rails.logger.info("raw_xml:#{raw_xml.inspect}")
-      Rails.logger.info("\n\n")
+      # Rails.logger.info("raw_xml:#{raw_xml.inspect}")
+      # Rails.logger.info("\n\n")
       encryption_template = Nokogiri::XML::Document.parse(build_encryption_template).root
-      Rails.logger.info("encryption_template:#{encryption_template}")
-      Rails.logger.info("\n\n")
+      # Rails.logger.info("encryption_template:#{encryption_template}")
+      # Rails.logger.info("\n\n")
 
       encrypted_data = Xmlenc::EncryptedData.new(encryption_template)
-      Rails.logger.info("encrypted_data:#{encrypted_data.inspect}")
-      Rails.logger.info("\n\n")
+      # Rails.logger.info("encrypted_data:#{encrypted_data.inspect}")
+      # Rails.logger.info("\n\n")
       @encryption_key = encrypted_data.encrypt(raw_xml)
       encrypted_key_node = encrypted_data.node.at_xpath(
         '//xenc:EncryptedData/ds:KeyInfo/xenc:EncryptedKey',
         Xmlenc::NAMESPACES
       )
       encrypted_key = Xmlenc::EncryptedKey.new(encrypted_key_node)
-      Rails.logger.info("Starting Encryption")
-      Rails.logger.info("Cert:#{cert.inspect}")
-      Rails.logger.info("Base64:#{Base64.decode64(cert)}")
-      Rails.logger.info("Public Key:#{openssl_cert.public_key}")
-      Rails.logger.info("Encryption Key:#{encryption_key}")
-      Rails.logger.info("\n\n")
+      # Rails.logger.info("Starting Encryption")
+      # Rails.logger.info("Cert:#{cert.inspect}")
+      # Rails.logger.info("Base64:#{Base64.decode64(cert)}")
+      # Rails.logger.info("Public Key:#{openssl_cert.public_key}")
+      # Rails.logger.info("Encryption Key:#{encryption_key}")
+      # Rails.logger.info("\n\n")
       encrypted_key.encrypt(openssl_cert.public_key, encryption_key)
       xml = Builder::XmlMarkup.new
       xml.EncryptedAssertion xmlns: Saml::XML::Namespaces::ASSERTION do |enc_assert|
